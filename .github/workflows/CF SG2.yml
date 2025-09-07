@@ -1,0 +1,27 @@
+name: SAP CF SG2APP保活
+
+on:
+  schedule:
+    - cron: "*/10 0 * * *"  # UTC 0 -> 北京时间 08:00-08:50
+  workflow_dispatch:
+
+concurrency:
+  group: keepalive-sg2
+  cancel-in-progress: true
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: KeepAlive via container
+        uses: docker://ghcr.io/uncleluogithub/cf-keepalive:latest
+        env:
+          CF_USERNAME: ${{ secrets.CF_SG2_USERNAME }}
+          CF_PASSWORD: ${{ secrets.CF_SG2_PASSWORD }}
+          CF_API:      ${{ secrets.CF_SG2_API }}
+          CF_ORG:      ${{ secrets.CF_SG2_ORG }}
+          CF_SPACE:    ${{ secrets.CF_SG2_SPACE }}
+          CF_APP:      ${{ secrets.CF_SG2_APP }}
+          CF_SET_PROCESS_HC: "true"
